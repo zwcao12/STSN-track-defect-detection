@@ -21,7 +21,7 @@ from torchvision.datasets import ImageFolder
 from anomalib.data.utils import DownloadInfo, download_and_extract
 from anomalib.models.components import AnomalyModule
 
-from .torch_model import STSNModel, STSNModelSize, reduce_tensor_elems
+from .torch_model import DCMD-NetModel, DCMD-NetModelSize, reduce_tensor_elems
 
 logger = logging.getLogger(__name__)
 
@@ -46,8 +46,8 @@ class TransformsWrapper:
         return self.transforms(image=np.array(img))
 
 
-class STSN(AnomalyModule):
-    """PL Lightning Module for the STSN algorithm.
+class DCMD-Net(AnomalyModule):
+    """PL Lightning Module for the DCMD-Net algorithm.
 
     Args:
         teacher_file_name (str): path to the pre-trained teacher model
@@ -66,7 +66,7 @@ class STSN(AnomalyModule):
         self,
         teacher_out_channels: int,
         image_size: tuple[int, int],
-        model_size: STSNModelSize = STSNModelSize.S,
+        model_size: DCMD-NetModelSize = DCMD-NetModelSize.S,
         lr: float = 0.0001,
         weight_decay: float = 0.00001,
         padding: bool = False,
@@ -76,7 +76,7 @@ class STSN(AnomalyModule):
         super().__init__()
 
         self.model_size = model_size
-        self.model: STSNModel = STSNMyModel(
+        self.model: DCMD-NetModel = DCMD-NetMyModel(
             teacher_out_channels=teacher_out_channels,
             input_size=image_size,
             model_size=model_size,
@@ -215,7 +215,7 @@ class STSN(AnomalyModule):
             self.model.mean_std.update(channel_mean_std)
 
     def training_step(self, batch: dict[str, str | Tensor], *args, **kwargs) -> dict[str, Tensor]:
-        """Training step for STSN returns the student, autoencoder and combined loss.
+        """Training step for DCMD-Net returns the student, autoencoder and combined loss.
 
         Args:
             batch (batch: dict[str, str | Tensor]): Batch containing image filename, image, label and mask
@@ -250,7 +250,7 @@ class STSN(AnomalyModule):
             self.model.quantiles.update(map_norm_quantiles)
 
     def validation_step(self, batch: dict[str, str | Tensor], *args, **kwargs) -> STEP_OUTPUT:
-        """Validation Step of STSN returns anomaly maps for the input image batch
+        """Validation Step of DCMD-Net returns anomaly maps for the input image batch
 
         Args:
           batch (dict[str, str | Tensor]): Input batch
@@ -265,8 +265,8 @@ class STSN(AnomalyModule):
         return batch
 
 
-class STSNLightning(STSN):
-    """PL Lightning Module for the STSN Algorithm.
+class DCMD-NetLightning(DCMD-Net):
+    """PL Lightning Module for the DCMD-Net Algorithm.
 
     Args:
         hparams (DictConfig | ListConfig): Model params
