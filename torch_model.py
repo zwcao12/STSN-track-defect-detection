@@ -1,4 +1,4 @@
-"""Torch model for student, teacher and autoencoder model in STSN"""
+"""Torch model for student, teacher and autoencoder model in DCMD-Net"""
 
 # Copyright (C) 2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
@@ -47,8 +47,8 @@ def reduce_tensor_elems(tensor: torch.Tensor, m=2**24) -> torch.Tensor:
     return tensor
 
 
-class STSNModelSize(str, Enum):
-    """Supported STSN model sizes"""
+class DCMD-NetModelSize(str, Enum):
+    """Supported DCMD-Net model sizes"""
 
     S = "small"
 
@@ -316,8 +316,8 @@ class Decoder(nn.Module):
         x = self.deconv8(x)
         return x
 
-class STSNModel(nn.Module):
-    """STSN model.
+class DCMD-NetModel(nn.Module):
+    """DCMD-Net model.
 
     Args:
         teacher_out_channels (int): number of convolution output channels of the pre-trained teacher model
@@ -334,7 +334,7 @@ class STSNModel(nn.Module):
         self,
         teacher_out_channels: int,
         input_size: tuple[int, int],
-        model_size: STSNMyModelSize = STSNMyModelSize.S,
+        model_size: DCMD-NetMyModelSize = DCMD-NetMyModelSize.S,
         padding=False,
         pad_maps=True,
     ) -> None:
@@ -346,11 +346,11 @@ class STSNModel(nn.Module):
         self.student_d:  PDN_StuD_S
         self.tfaa: TFAA_Block
         self.tfaa = TFAA_Block(768, 3136, 768) #3136 2304
-        if model_size == STSNMyModelSize.M:
+        if model_size == DCMD-NetMyModelSize.M:
             self.teacher = PDN_M(out_channels=teacher_out_channels, padding=padding).eval()
             self.student = PDN_M(out_channels=teacher_out_channels * 2, padding=padding)
 
-        elif model_size == STSNMyModelSize.S:
+        elif model_size == DCMD-NetMyModelSize.S:
             self.teacher = PDN_Tea_S(out_channels=teacher_out_channels, padding=padding).eval()
             self.student_rgb = PDN_StuRGB_S(out_channels=teacher_out_channels * 2, padding=padding)
             self.student_d = PDN_StuD_S(out_channels=teacher_out_channels * 2, padding=padding)
@@ -395,7 +395,7 @@ class STSNModel(nn.Module):
         return transform_function(image, coefficient)
 
     def forward(self, batch: Tensor, batch_depth: Tensor, batch_imagenet: Tensor = None) -> Tensor | dict:
-        """Prediction by STSN models.
+        """Prediction by DCMD-Net models.
 
         Args:
             batch (Tensor): Input images.
